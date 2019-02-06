@@ -8,17 +8,32 @@ class nodeTrie{
     public:
         unordered_map<char,nodeTrie*> children;
         int weight;
-        nodeTrie(){
+        nodeTrie(){            
             this->weight = 0;
         }
+        void print(int level);
 };
 
+void nodeTrie::print(int level){
+    unordered_map<char, nodeTrie*> current = this->children;        
+    for (auto it = current.begin() ; it != current.end(); ++it){  
+        for(int i =0; i < level; i++)
+                cout << '\t';      
+        cout <<it->first << " ="<< it->second->weight << endl;     
+        //cout << endl;       
+        it->second->print(level+1);
+        //level++;                    
+        }
+        
+    
+}
 class Trie{
     public:
         nodeTrie* head;
         Trie();
         ~Trie();
         void insert(const char* c);
+        void _insert(const char* c);
         int search(const char* c);
         void print();       
 };
@@ -31,23 +46,40 @@ Trie::~Trie(){
     // implement destructor after
 }
 
+void printTest(const char * str){
+    cout << str << endl;
+}
+
 void Trie::insert(const char* str){
+    while (*str){
+        //recursive insertion of the substrings
+        this->_insert(str);   
+        printTest(str);
+        str++;                         
+    }
+}
+
+void Trie::_insert(const char* str){
     if (this->head == nullptr)
         this->head = new nodeTrie();
-    // start from the root node
-    nodeTrie* current = this->head;
-    while(*str){
+    // start from the root node    
+    nodeTrie* current = this-> head;
+    const char *buffer;
+    while(*str){                   
         //create a new node if path doesn`t exists
         if(current->children.find(*str) == current->children.end())
             current->children[*str] = new nodeTrie();          
         //Update the current with the next child
-        current = current->children[*str];
-        current->weight++;
+        current = current->children[*str];            
         //move to the next character
-        str++;
-    }
+        str++;        
+        }
+        current->weight++;        
+    // In order to update just the last character
+        //current->weight++;         
     //current->isLeaf = true;
 }
+
 
 int Trie::search(const char* str){
     // return false if Trie is empty
@@ -64,6 +96,9 @@ int Trie::search(const char* str){
     //if we reach the end of the string and could found all the letters, return the weight of the last node.
     return current->weight;
 }
+void Trie::print(){
+    this->head->print(0);
+}
 
 class nodeList{
     public:
@@ -79,7 +114,10 @@ class List{
         nodeList* head;
         unordered_map<char,bool> info;
     List(){
-        this->head = 0;
+        //this->head = 0;
+        for(int i = 127; i >= 0 ; i--){
+            this->insert(char(i));
+        }
     };
     ~List(){
         //implement destructor
@@ -154,10 +192,6 @@ void List::print(){
     
 }
 
-void processText (char* &result, Trie* &head, const char* str , int cap){
-    
-} 
-
 void testList(List* & list, const char* str){
     while(*str){
         cout << list->search(*str) << ", ";
@@ -167,25 +201,65 @@ void testList(List* & list, const char* str){
     }    
     cout << endl;
 }
-int main(int argc, char *argv[] ){
+
+class CompContBased{
+    public:
+        Trie* trie;
+        List* list;
+        int cap;
+        char *buffer;
+    CompContBased(int cap){
+        this->trie = new Trie();
+        this->list = new List();
+        this->cap = cap;
+        this->buffer = nullptr; 
+    };
+    ~CompContBased();
+    void process(const char* str);    
     
-    List* list = new List();
-    for(int i = 127; i >= 0 ; i--){
-        list->insert(char(i));
+};
+
+void CompContBased::process(const char* str){  
+    Trie* trie = this->trie;
+    List* list = this->list;
+    const char* buffer = str;
+    buffer = buffer - (this->cap);  
+    string input(str);
+    int size = strlen(str);
+    int index = 0 ;
+    while(*str){        
+        cout << list->search(*str) << ',';
+        list->update(*str);
+        str++;
     }
+    
+    return;
+}
+
+int main(int argc, char *argv[] ){
+    //CompContBased* test = new CompContBased(3);
+    //test->process("aababcaba");
+    //List* list = new List();    
     //list->print();
-    testList(list,"aababcaba");
+    //testList(list,"aababcaba");
     //list->print();
-    /*Trie* trie = new Trie();
-    trie->insert("Saulo");
-    trie->insert("Saulo");
-    trie->insert("muskan");
+    Trie* trie = new Trie();
+    trie->insert("a");
+    trie->insert("aa");
+    trie->insert("aab");
+    trie->insert("aba");
+    trie->insert("bab");
+    trie->insert("abc");
+    trie->insert("bca");
+    trie->insert("cab");
+    trie->insert("aba");
+    /*
     cout << trie->search("Saulo") <<"\n";
     cout << trie->search("saul") << "\n";
     cout << trie->search("musk") << "\n";
     cout << trie->search("muskan") << "\n";
-    cout << trie->search("muske") << "\n";
-    */
+    cout << trie->search("muske") << "\n";*/
+    trie->print();
     
     return 0;
 }
