@@ -221,29 +221,31 @@ class CompContBased{
 
 void CompContBased::process(const char* str){  
     Trie* trie = this->trie;
-    List* list = this->list;
-    const char* buffer = str;
-    buffer = buffer - (this->cap);  
-    string input(str);
-    int size = strlen(str);
-    int index = 0 ;
-    while(*str){        
+    List* list = this->list; 
+    string buffer(str);
+    string aux;
+    int index  =0;
+    int cap = this->cap;
+    while(*str){  
+        index++;
+        if (index < cap){
+            aux = buffer.substr(0,index);            
+        }else{
+            aux = buffer.substr(index-cap,cap-1);
+        }      
+        cout << "aux = " << aux << endl;
         cout << list->search(*str) << ',';
         list->update(*str);
         str++;
     }
-    
+    //list->print();
     return;
 }
 
 int main(int argc, char *argv[] ){
-    //CompContBased* test = new CompContBased(3);
-    //test->process("aababcaba");
-    //List* list = new List();    
-    //list->print();
-    //testList(list,"aababcaba");
-    //list->print();
-    Trie* trie = new Trie();
+    CompContBased* test = new CompContBased(3);
+    test->process("aababcaba");    
+    /*Trie* trie = new Trie();
     trie->insert("a");
     trie->insert("aa");
     trie->insert("aab");
@@ -253,13 +255,12 @@ int main(int argc, char *argv[] ){
     trie->insert("bca");
     trie->insert("cab");
     trie->insert("aba");
-    /*
     cout << trie->search("Saulo") <<"\n";
     cout << trie->search("saul") << "\n";
     cout << trie->search("musk") << "\n";
     cout << trie->search("muskan") << "\n";
     cout << trie->search("muske") << "\n";*/
-    trie->print();
+    //trie->print();
     
     return 0;
 }
