@@ -34,7 +34,7 @@ class Trie{
         ~Trie();
         void insert(const char* c);
         void _insert(const char* c);
-        int search(const char* c);
+        nodeTrie* search(const char* c);
         void print();       
 };
 
@@ -54,7 +54,7 @@ void Trie::insert(const char* str){
     while (*str){
         //recursive insertion of the substrings
         this->_insert(str);   
-        printTest(str);
+        //printTest(str);
         str++;                         
     }
 }
@@ -81,20 +81,20 @@ void Trie::_insert(const char* str){
 }
 
 
-int Trie::search(const char* str){
+nodeTrie* Trie::search(const char* str){
     // return false if Trie is empty
-    if(this->head == nullptr)
-        return 0;
-    nodeTrie* current = this->head;
+    if(this->head == nullptr || strlen(str) == 0)
+        return nullptr;
+    nodeTrie* current = this->head;        
     while(*str){
         current = current->children[*str];
         // return false if Trie is empty
         if(current == nullptr)
-            return 0;
+            return nullptr;
         str++;
     }
     //if we reach the end of the string and could found all the letters, return the weight of the last node.
-    return current->weight;
+    return current;
 }
 void Trie::print(){
     this->head->print(0);
@@ -115,7 +115,7 @@ class List{
         unordered_map<char,bool> info;
     List(){
         //this->head = 0;
-        for(int i = 127; i >= 0 ; i--){
+        for(int i = 99; i >= 97 ; i--){
             this->insert(char(i));
         }
     };
@@ -212,32 +212,71 @@ class CompContBased{
         this->trie = new Trie();
         this->list = new List();
         this->cap = cap;
-        this->buffer = nullptr; 
+        //this->buffer = nullptr; 
     };
     ~CompContBased();
     void process(const char* str);    
+    char findNext(const char* str);
     
 };
+
+char CompContBased::findNext(const char* str){
+    Trie* trie = this->trie;
+    bool found = false;
+    int max = 0;
+    int tempWeight;
+    char result = 'X';        
+    cout << endl <<"initial search for= " << str << endl;
+    str++;
+    cout << endl <<"search for= " << str << endl;
+    nodeTrie* prev = trie->search(str);    
+    if(prev != nullptr ){
+        //prev->print(0);
+        for(auto it = prev->children.begin(); it != prev->children.end(); ++it ){
+            tempWeight = it->second->weight;
+            cout << "it =>" << it->first;
+            if( tempWeight > max){
+                result = it->first;
+                found = true;
+            } else if(found && tempWeight == max){                
+                result = findNext(str);
+            }            
+        }
+    }
+    cout<< endl<< "result = "<<result << endl;
+    return result;
+}
 
 void CompContBased::process(const char* str){  
     Trie* trie = this->trie;
     List* list = this->list; 
     string buffer(str);
     string aux;
+    //temp variable to keep the indexes and print in the very endy.
+    int output[1000];
     int index  =0;
     int cap = this->cap;
     while(*str){  
-        index++;
+        //output[index++] = list->search(*str); // aux
+        //cout << output[index++] << ',';  // aux      
         if (index < cap){
             aux = buffer.substr(0,index);            
         }else{
-            aux = buffer.substr(index-cap,cap-1);
-        }      
-        cout << "aux = " << aux << endl;
-        cout << list->search(*str) << ',';
-        list->update(*str);
+            aux = buffer.substr(index-cap,cap);
+        }              
+        //cout << "aux = " << aux << endl;    // aux    
+        trie->insert(aux.c_str());
+        //trie->print(); // aux
+        //list->update(*str); // move to front ()
+        char temp = findNext(aux.c_str()) ;
+        if (temp != 'X')
+            list->update(temp);
+        cout <<endl << "next = " << temp << endl;
+        output[index++] = list->search(*str); // aux
         str++;
     }
+    for(int i = 0; i < index; i++ )
+        cout << output[i] << ',';
     //list->print();
     return;
 }
