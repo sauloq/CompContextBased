@@ -80,6 +80,10 @@ void Trie::_insert(const char* str){
     //current->isLeaf = true;
 }
 
+void Trie::print(){
+    if (this-> head != nullptr)
+        this->head->print(0);
+}
 
 nodeTrie* Trie::search(const char* str){
     // return false if Trie is empty
@@ -96,9 +100,7 @@ nodeTrie* Trie::search(const char* str){
     //if we reach the end of the string and could found all the letters, return the weight of the last node.
     return current;
 }
-void Trie::print(){
-    this->head->print(0);
-}
+
 
 class nodeList{
     public:
@@ -226,20 +228,40 @@ char CompContBased::findNext(const char* str){
     int max = 0;
     int tempWeight;
     char result = 'X';        
-    cout << endl <<"initial search for= " << str << endl;
-    str++;
-    cout << endl <<"search for= " << str << endl;
-    nodeTrie* prev = trie->search(str);    
-    if(prev != nullptr ){
-        //prev->print(0);
+    //cout << endl <<"initial search for= " << str << endl;
+    str++;    
+    while (*str && result == 'X'){  
+        cout << endl <<"search for= " << str << endl;    
+        nodeTrie* prev = trie->search(str);  
+        if(prev != nullptr ){
+            for(auto it = prev->children.begin(); it != prev->children.end(); ++it ){
+                tempWeight = it->second->weight;
+                cout << max <<" it =>" << it->first << " weight= "<< it->second->weight << '-' << result << found<< endl;
+                if( tempWeight > max){
+                    result = it->first;
+                    found = true;
+                    max = tempWeight;
+                } else if(found && tempWeight == max){                
+                    result = findNext(str);
+                }            
+            }
+        }
+        str++;
+    }
+    // Search for element with the greateast weigh among all single elements.
+    nodeTrie* prev = trie->head;  
+    cout << "searching on the Trie Head" << endl;
+    if(prev != nullptr && result == 'X'){
         for(auto it = prev->children.begin(); it != prev->children.end(); ++it ){
             tempWeight = it->second->weight;
-            cout << "it =>" << it->first;
+            cout << max <<" it =>" << it->first << " weight= "<< it->second->weight << '-' << result << found<< endl;
             if( tempWeight > max){
                 result = it->first;
                 found = true;
+                max = tempWeight;
             } else if(found && tempWeight == max){                
-                result = findNext(str);
+                //result = 'X';
+                cout << "DRAW HAPPENS" << endl;
             }            
         }
     }
@@ -274,6 +296,7 @@ void CompContBased::process(const char* str){
         cout <<endl << "next = " << temp << endl;
         output[index++] = list->search(*str); // aux
         str++;
+        trie->print();
     }
     for(int i = 0; i < index; i++ )
         cout << output[i] << ',';
@@ -283,7 +306,7 @@ void CompContBased::process(const char* str){
 
 int main(int argc, char *argv[] ){
     CompContBased* test = new CompContBased(3);
-    test->process("aababcaba");    
+    test->process("aababcababca");    
     /*Trie* trie = new Trie();
     trie->insert("a");
     trie->insert("aa");
