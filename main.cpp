@@ -117,7 +117,9 @@ class List{
         unordered_map<char,bool> info;
     List(){
         //this->head = 0;
-        for(int i = 99; i >= 97 ; i--){
+        // create the list with only abc
+        //for(int i = 99; i >= 97 ; i--){
+        for(int i = 122; i >= 65 ; i--){
             this->insert(char(i));
         }
     };
@@ -305,8 +307,8 @@ void CompContBased::process(const char* str){
 }
 
 int main(int argc, char *argv[] ){
-    CompContBased* test = new CompContBased(3);
-    test->process("aababcababca");    
+    CompContBased* test = new CompContBased(5);
+    test->process("saulosaulosaulosaulosauloMuskanMuskanSaulosaulomuskan");    
     /*Trie* trie = new Trie();
     trie->insert("a");
     trie->insert("aa");
